@@ -1,0 +1,98 @@
+Reproducible research Ilka van Vliet
+#read file and process
+library(readr)
+library(tidyr)
+## Warning: package 'tidyr' was built under R version 3.4.3
+library(chron)
+## Warning: package 'chron' was built under R version 3.4.3
+library(lubridate)
+## Warning: package 'lubridate' was built under R version 3.4.3
+## 
+## Attaching package: 'lubridate'
+## The following objects are masked from 'package:chron':
+## 
+##     days, hours, minutes, seconds, years
+## The following object is masked from 'package:base':
+## 
+##     date
+library(ggplot2)
+## Warning: package 'ggplot2' was built under R version 3.4.3
+activity <- read_csv("activity.csv")
+## Parsed with column specification:
+## cols(
+##   steps = col_integer(),
+##   date = col_date(format = ""),
+##   interval = col_integer()
+## )
+clean up and process data
+
+drop_na(activity)
+## # A tibble: 15,264 x 3
+##    steps       date interval
+##    <int>     <date>    <int>
+##  1     0 2012-10-02        0
+##  2     0 2012-10-02        5
+##  3     0 2012-10-02       10
+##  4     0 2012-10-02       15
+##  5     0 2012-10-02       20
+##  6     0 2012-10-02       25
+##  7     0 2012-10-02       30
+##  8     0 2012-10-02       35
+##  9     0 2012-10-02       40
+## 10     0 2012-10-02       45
+## # ... with 15,254 more rows
+steps_day <- aggregate(steps ~ date, activity, sum)
+Histogram total number steps each day, and find the mean=10766 median=10765
+
+attach(activity)
+hist(steps_day$steps)
+
+
+summary(steps_day)
+##       date                steps      
+##  Min.   :2012-10-02   Min.   :   41  
+##  1st Qu.:2012-10-16   1st Qu.: 8841  
+##  Median :2012-10-29   Median :10765  
+##  Mean   :2012-10-30   Mean   :10766  
+##  3rd Qu.:2012-11-16   3rd Qu.:13294  
+##  Max.   :2012-11-29   Max.   :21194
+Steps per interval
+
+steps_interval <- aggregate(steps ~ interval, activity, mean)
+plot(steps_interval$interval,steps_interval$steps, xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
+
+
+max_interval <- steps_interval[which.max(steps_interval$steps),1]
+summary(max_interval)
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##     835     835     835     835     835     835
+Number of NAs, mean 1177.5 and median 1177.5, the impact is that the interval drops
+
+sum(is.na(activity))
+## [1] 2304
+NAmean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+activity[] <- lapply(activity, NAmean)
+attach(activity)
+## The following objects are masked from activity (pos = 3):
+## 
+##     date, interval, steps
+hist(steps_day$steps)
+
+
+summary(activity[])
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 37.38   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
+Make column with weekday or weekend
+
+library(lubridate)
+activity$dayofweek <- ifelse(is.weekend(activity$date), "weekend", "weekday")
+meaninterval_new<- aggregate(steps ~ interval + dayofweek, activity, FUN=mean)
+ggplot(meaninterval_new, aes(x=interval, y=steps)) + 
+  geom_line(color="blue", size=1) + 
+  facet_wrap(~dayofweek, nrow=2) +
+  labs(x="\nInterval", y="\nNumber of steps")
