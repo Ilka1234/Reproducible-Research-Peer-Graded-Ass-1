@@ -28,6 +28,7 @@ hist(steps_day$steps)
 summary(steps_day)
 ```
 
+
 Steps per interval
 ```{r}
 steps_interval <- aggregate(steps ~ interval, activity, mean)
