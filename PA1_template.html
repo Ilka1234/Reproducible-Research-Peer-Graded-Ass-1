@@ -1,1 +1,212 @@
-C:\Users\15476\Desktop\knit.html 
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title></title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<p>#read file and process#
+library(readr)
+library(tidyr)
+library(chron)
+library(lubridate)
+library(ggplot2)
+activity &lt;- read_csv(&ldquo;~/activity.csv&rdquo;)
+cols(
+  steps = col_integer(),
+  date = col_date(format = &ldquo;&rdquo;),
+  interval = col_integer()
+)</p>
+
+<p>#clean up and process data#
+drop_na(activity)
+steps_day &lt;- aggregate(steps ~ date, activity, sum)</p>
+
+<p>#histogram total number steps each day, and find the mean=10766 median=10765#
+attach(activity)
+hist(steps_day$steps)
+summary(steps_day)</p>
+
+<p>#steps per interval#
+steps_interval &lt;- aggregate(steps ~ interval, activity, mean)
+plot(steps_interval$interval,steps_interval$steps, xlab=&ldquo;Interval&rdquo;, ylab=&ldquo;Number of Steps&rdquo;,main=&ldquo;Average Number of Steps per Day by Interval&rdquo;)
+max_interval &lt;- steps_interval[which.max(steps_interval$steps),1]
+summary(max_interval)</p>
+
+<p>#number of NAs, mean 1177.5 and median 1177.5, the impact is that the interval drops 
+sum(is.na(activity))
+NAmean &lt;- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
+activity[] &lt;- lapply(activity, NAmean)
+attach(activity)
+hist(steps_day$steps)
+summary(activity[])</p>
+
+<p>#make column with weekday or weekend
+activity$dayofweek &lt;- ifelse(is.weekend(activity$date), &ldquo;weekend&rdquo;, &ldquo;weekday&rdquo;)
+meaninterval_new&lt;- aggregate(steps ~ interval + dayofweek, activity, FUN=mean)
+ggplot(meaninterval_new, aes(x=interval, y=steps)) + 
+  geom_line(color=&ldquo;blue&rdquo;, size=1) + 
+  facet_wrap(~dayofweek, nrow=2) +
+  labs(x=&ldquo;\nInterval&rdquo;, y=&ldquo;\nNumber of steps&rdquo;)</p>
+
+</body>
+
+</html>
