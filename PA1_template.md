@@ -24,7 +24,7 @@ steps_day <- aggregate(steps ~ date, activity, sum)
 Histogram total number steps each day, and find the mean=10766 median=10765
 ```{r}
 attach(activity)
-!hist(steps_day$steps)
+hist(steps_day$steps)
 summary(steps_day)
 ```
 
@@ -32,7 +32,7 @@ summary(steps_day)
 Steps per interval
 ```{r}
 steps_interval <- aggregate(steps ~ interval, activity, mean)
-!plot(steps_interval$interval,steps_interval$steps, xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
+plot(steps_interval$interval,steps_interval$steps, xlab="Interval", ylab="Number of Steps",main="Average Number of Steps per Day by Interval")
 max_interval <- steps_interval[which.max(steps_interval$steps),1]
 summary(max_interval)
 ```
@@ -43,7 +43,7 @@ sum(is.na(activity))
 NAmean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))
 activity[] <- lapply(activity, NAmean)
 attach(activity)
-!hist(steps_day$steps)
+hist(steps_day$steps)
 summary(activity[])
 ```
 
@@ -52,7 +52,7 @@ Make column with weekday or weekend
 library(lubridate)
 activity$dayofweek <- ifelse(is.weekend(activity$date), "weekend", "weekday")
 meaninterval_new<- aggregate(steps ~ interval + dayofweek, activity, FUN=mean)
-!ggplot(meaninterval_new, aes(x=interval, y=steps)) + 
+ggplot(meaninterval_new, aes(x=interval, y=steps)) + 
   geom_line(color="blue", size=1) + 
   facet_wrap(~dayofweek, nrow=2) +
   labs(x="\nInterval", y="\nNumber of steps")
