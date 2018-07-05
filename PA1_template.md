@@ -58,3 +58,5 @@ ggplot(meaninterval_new, aes(x=interval, y=steps)) +
   facet_wrap(~dayofweek, nrow=2) +
   labs(x="\nInterval", y="\nNumber of steps")
 ```
+
+
