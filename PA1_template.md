@@ -27,7 +27,7 @@ attach(activity)
 hist(steps_day$steps)
 summary(steps_day)
 ```
-
+http://127.0.0.1:46776/chunk_output/s/9BD1B687/ci9ool7goh8j6/000003.png
 
 Steps per interval
 ```{r}
